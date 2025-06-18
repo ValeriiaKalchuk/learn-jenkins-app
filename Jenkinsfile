@@ -28,18 +28,13 @@ pipeline {
                 }
             }
             steps {
-                echo 'Test stage - positive test'
+                echo 'Test stage'
                 sh '''
                     echo "Checking if index.html exists in the build folder"
                     test -f build/index.html
                     echo "Running unit tests"
                     npm test
                 '''
-                sh '''
-                    echo Test stage - negative test
-                    test -f build/x.html
-                '''
-
             }
         }
     }
