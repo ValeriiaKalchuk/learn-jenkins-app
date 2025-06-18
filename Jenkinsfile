@@ -21,13 +21,13 @@ pipeline {
             }
         }
         stage('Test stage') {
-            steps {
-                agent {
-                    docker {
-                        image 'node:18-alpine'
-                        reuseNode true
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
                 }
             }
+            steps {
                 echo 'Test stage'
                 sh '''
                     echo "Checking if index.html exists in the build folder"
