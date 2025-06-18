@@ -26,7 +26,6 @@ pipeline {
                 sh '''
                     echo "Checking if index.html exists in the build folder"
                     test -f build/index.html
-                    ls -la
                 '''
             }
         }
