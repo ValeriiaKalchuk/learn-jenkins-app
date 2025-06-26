@@ -157,7 +157,7 @@ pipeline {
             }
 
             environment {
-				CI_ENVIRONMENT_URL = 'YOUR NETLIFY URL'
+				CI_ENVIRONMENT_URL = 'https://dancing-treacle-57a9e1.netlify.app'
             }
 
             steps {
