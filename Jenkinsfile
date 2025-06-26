@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID = '6bd7b694-902a-44a2-9bc2-85024375be6d'
+        NETLIFY_SITE_ID = 'YOUR NETLIFY SITE ID'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
     stages {
-        /*stage('Build') {
+
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -24,9 +25,10 @@ pipeline {
                     ls -la
                 '''
             }
-        }*/
+        }
+
         stage('Tests') {
-           parallel {
+            parallel {
                 stage('Unit tests') {
                     agent {
                         docker {
@@ -34,16 +36,13 @@ pipeline {
                             reuseNode true
                         }
                     }
+
                     steps {
-                        echo 'Test stage'
                         sh '''
-                            echo "Checking if index.html exists in the build folder"
-                            test -f build/index.html
-                            echo "Running unit tests"
+                            #test -f build/index.html
                             npm test
                         '''
                     }
-
                     post {
                         always {
                             junit 'jest-results/junit.xml'
@@ -58,19 +57,25 @@ pipeline {
                             reuseNode true
                         }
                     }
+
                     steps {
-                        echo 'E2E stage'
                         sh '''
                             npm install serve
                             node_modules/.bin/serve -s build &
                             sleep 10
-                            npx playwright test --reporter=html
+                            npx playwright test  --reporter=html
                         '''
                     }
-                }
 
-           }
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Local E2E', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
+                }
+            }
         }
+
         stage('Deploy staging') {
             agent {
                 docker {
@@ -80,7 +85,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1 node-jq
+                    npm install netlify-cli node-jq
                     node_modules/.bin/netlify --version
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
@@ -91,6 +96,7 @@ pipeline {
                 }
             }
         }
+
         stage('Staging E2E') {
             agent {
                 docker {
@@ -115,13 +121,15 @@ pipeline {
                 }
             }
         }
+
         stage('Approval') {
             steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    input cancel: 'No, not now', message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
+                timeout(time: 15, unit: 'MINUTES') {
+                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
                 }
             }
         }
+
         stage('Deploy prod') {
             agent {
                 docker {
@@ -131,7 +139,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1
+                    npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
@@ -139,6 +147,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Prod E2E') {
             agent {
                 docker {
