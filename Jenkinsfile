@@ -18,6 +18,8 @@ pipeline {
             steps {
 				sh '''
 					aws --version
+					echo "Showing available buckets"
+					aws s3 ls
 				'''
 			}
         }
