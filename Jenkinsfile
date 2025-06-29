@@ -21,6 +21,9 @@ pipeline {
 						aws --version
 						echo "Showing available buckets"
 						aws s3 ls
+						echo "Copying a file to S3"
+						echo "Hello, S3"! > index.html
+						aws s3 cp index.html s3://learn-jenkins-202526062327/index.html
 					'''
 				}
 			}
